@@ -20,8 +20,6 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include <zmk/ble.h>
 #include <zmk/endpoints.h>
 
-LV_IMG_DECLARE(bt18);
-
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
 struct output_status_state {
@@ -40,25 +38,25 @@ static struct output_status_state get_state(const zmk_event_t *_eh) {
     ;
 }
 
-static void set_status_symbol(lv_obj_t *label, lv_obj_t *img, struct output_status_state state) {
-    char text[10] = {};
+static void set_status_symbol(lv_obj_t *label, struct output_status_state state) {
+    char text[9] = {};
 
     switch (state.selected_endpoint) {
     case ZMK_ENDPOINT_USB:
-        lv_obj_set_hidden(img, true);
-        strcat(text, LV_SYMBOL_USB);
+        strcat(text, LV_SYMBOL_USB "   ");
         break;
     case ZMK_ENDPOINT_BLE:
-        lv_obj_set_hidden(img, false);
         if (state.active_profile_bonded) {
             if (state.active_profile_connected) {
-                snprintf(text, sizeof(text), "    %i\n" LV_SYMBOL_OK, state.active_profile_index);
+                snprintf(text, sizeof(text), LV_SYMBOL_WIFI "%i " LV_SYMBOL_OK,
+                         state.active_profile_index);
             } else {
-                snprintf(text, sizeof(text), "    %i\n" LV_SYMBOL_CLOSE,
+                snprintf(text, sizeof(text), LV_SYMBOL_WIFI "%i " LV_SYMBOL_CLOSE,
                          state.active_profile_index);
             }
         } else {
-            snprintf(text, sizeof(text), "    %i\n" LV_SYMBOL_SETTINGS, state.active_profile_index);
+            snprintf(text, sizeof(text), LV_SYMBOL_WIFI "%i " LV_SYMBOL_SETTINGS,
+                     state.active_profile_index);
         }
         break;
     }
@@ -68,9 +66,7 @@ static void set_status_symbol(lv_obj_t *label, lv_obj_t *img, struct output_stat
 
 static void output_status_update_cb(struct output_status_state state) {
     struct zmk_widget_output_status *widget;
-    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
-        set_status_symbol(widget->obj, widget->img, state);
-    }
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) { set_status_symbol(widget->obj, state); }
 }
 
 ZMK_DISPLAY_WIDGET_LISTENER(widget_output_status, struct output_status_state,
@@ -86,9 +82,6 @@ ZMK_SUBSCRIPTION(widget_output_status, zmk_ble_active_profile_changed);
 
 int zmk_widget_output_status_init(struct zmk_widget_output_status *widget, lv_obj_t *parent) {
     widget->obj = lv_label_create(parent, NULL);
-    widget->img = lv_img_create(parent, NULL);
-    lv_img_set_src(widget->img, &bt18);
-    lv_obj_set_hidden(widget->img, true);
 
     lv_obj_set_size(widget->obj, 40, 15);
 

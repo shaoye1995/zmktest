@@ -6,7 +6,7 @@ menu "ZMK Display Widgets"
 config ZMK_WIDGET_LAYER_STATUS
     bool "Widget for highest, active layer using small icons"
     default y
-    depends on !ZMK_SPLIT || ZMK_SPLIT_ROLE_CENTRAL
+    depends on !ZMK_SPLIT || ZMK_SPLIT_BLE_ROLE_CENTRAL
     select LVGL_USE_LABEL
 
 config ZMK_WIDGET_BATTERY_STATUS
@@ -17,35 +17,53 @@ config ZMK_WIDGET_BATTERY_STATUS
 
 config ZMK_WIDGET_OUTPUT_STATUS
     bool "Widget for keyboard output status icons"
-    depends on BT && (!ZMK_SPLIT_BLE || ZMK_SPLIT_ROLE_CENTRAL)
-    default y if BT && (!ZMK_SPLIT_BLE || ZMK_SPLIT_ROLE_CENTRAL)
+    depends on BT
+    default y if BT
     select LVGL_USE_LABEL
-
-config ZMK_WIDGET_PERIPHERAL_STATUS
-    bool "Widget for split peripheral status icons"
-    depends on BT && ZMK_SPLIT_BLE && !ZMK_SPLIT_ROLE_CENTRAL
-    default y if BT && ZMK_SPLIT_BLE && !ZMK_SPLIT_ROLE_CENTRAL
-    select LVGL_USE_LABEL
-    select LVGL_USE_IMG
     
 config ZMK_WIDGET_WPM_STATUS
     bool "Widget for displaying typed words per minute"
-    depends on !ZMK_SPLIT || ZMK_SPLIT_ROLE_CENTRAL
+    depends on !ZMK_SPLIT || ZMK_SPLIT_BLE_ROLE_CENTRAL
     select LVGL_USE_LABEL
     select ZMK_WPM
 
-config ZMK_WIDGET_FOX
-    bool "Widget for displaying animated FFKB fox"
+config ZMK_WIDGET_BONGO_CAT
+    bool "Widget for displaying bongo cat that reacts to typing"
+    depends on !ZMK_DISPLAY_WORK_QUEUE_DEDICATED && (!ZMK_SPLIT || ZMK_SPLIT_BLE_ROLE_CENTRAL)
     select LVGL_USE_IMG
     select LVGL_USE_ANIMATION
     select ZMK_WPM
 
-if ZMK_WIDGET_FOX
+if ZMK_WIDGET_BONGO_CAT
 
-config ZMK_WIDGET_FOX_SLOW_LIMIT
-    int "Upper limit for WPM for showing slow typing animation"
+config ZMK_WIDGET_BONGO_CAT_IDLE_LIMIT
+    int "Upper limit for WPM for showing idle animation"
     default 30
 
-endif # ZMK_WIDGET_FOX
+config ZMK_WIDGET_BONGO_CAT_SLOW_LIMIT
+    int "Upper limit for WPM for showing slow typing image"
+    default 60
+
+endif # ZMK_WIDGET_BONGO_CAT
+
+endmenu
+config ZMK_WIDGET_LUNA
+    bool "Widget for displaying luna that reacts to typing"
+    select LVGL_USE_IMG
+    select LVGL_USE_ANIMATION
+    select LVGL_USE_IMG_TRANSFORM
+    select ZMK_WPM
+
+if ZMK_WIDGET_LUNA
+
+config ZMK_WIDGET_LUNA_IDLE_LIMIT
+    int "Upper limit for WPM for showing idle animation"
+    default 30
+
+config ZMK_WIDGET_LUNA_SLOW_LIMIT
+    int "Upper limit for WPM for showing slow typing image"
+    default 60
+
+endif # ZMK_WIDGET_LUNA
 
 endmenu
